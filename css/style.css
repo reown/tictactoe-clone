@@ -1,0 +1,48 @@
+header {
+  text-align: center;
+  font-size: 60px;
+  width: 324px;
+}
+
+hr {
+  width: 324px;
+  margin-left: 0;
+}
+
+.scoreboard {
+  display: flex;
+  text-align: center;
+  align-items: center;
+  width: 324px;
+  font-size: 30px;
+}
+
+.scoreboard .side {
+  width: 150px;
+}
+
+.statusboard {
+  text-align: center;
+  font-size: 30px;
+  width: 324px;
+}
+
+.gameboard {
+  display: grid;
+  grid-template-columns: repeat(3, 100px);
+  gap: 12px;
+  background-color: black;
+  width: 324px;
+}
+
+.gameboard button {
+  height: 100px;
+  width: 100px;
+  background-color: white;
+  border: none;
+  font-size: 3rem;
+}
+
+.gameboard button:disabled {
+  color: black;
+}
