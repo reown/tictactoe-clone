@@ -33,6 +33,7 @@ const game = {
     [2, 4, 6],
   ],
   boardState: [],
+  playerTurn: true,
   started: false,
   ended: false,
 };
@@ -62,8 +63,13 @@ function resetBoard() {
   game.started = false;
   game.boardState = Array(9).fill(null);
 
-  game.els.statusBoardLabel.innerHTML =
-    game.player.shape === "✖" ? game.labels.xStart : game.labels.oStart;
+  if (game.player.shape === "✖") {
+    game.els.statusBoardLabel.innerHTML = game.labels.xStart;
+    game.playerTurn = true;
+  } else {
+    game.els.statusBoardLabel.innerHTML = game.labels.oStart;
+    game.playerTurn = false;
+  }
 
   for (const child of game.els.board.children) {
     child.textContent = "";
@@ -77,8 +83,14 @@ function handleSwap() {
     game.computer.shape = game.computer.shape === "✖" ? "⭘" : "✖";
     game.els.playerShapeLabel.textContent = game.player.shape;
     game.els.computerShapeLabel.textContent = game.computer.shape;
-    game.els.statusBoardLabel.innerHTML =
-      game.player.shape === "✖" ? game.labels.xStart : game.labels.oStart;
+
+    if (game.player.shape === "✖") {
+      game.els.statusBoardLabel.innerHTML = game.labels.xStart;
+      game.playerTurn = true;
+    } else {
+      game.els.statusBoardLabel.innerHTML = game.labels.oStart;
+      game.playerTurn = false;
+    }
   }
 }
 
@@ -91,11 +103,12 @@ function handleClick(e) {
   if (!game.started && game.computer.shape === "✖") {
     game.started = true;
     computerMove();
+    game.playerTurn = true;
     game.els.statusBoardLabel.innerHTML = `${game.player.shape}'s Turn`;
     return;
   }
 
-  if (e.target.id) {
+  if (e.target.id && game.playerTurn) {
     game.started = true;
     game.boardState[e.target.id] = game.player.shape;
     e.target.textContent = game.player.shape;
@@ -105,6 +118,7 @@ function handleClick(e) {
       return;
     }
 
+    game.playerTurn = false;
     game.els.statusBoardLabel.innerHTML = `${game.computer.shape}'s Turn`;
     setTimeout(() => {
       computerMove();
@@ -113,8 +127,9 @@ function handleClick(e) {
         return;
       }
 
+      game.playerTurn = true;
       game.els.statusBoardLabel.innerHTML = `${game.player.shape}'s Turn`;
-    }, 1000);
+    }, 500);
   }
 }
 
