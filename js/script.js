@@ -156,10 +156,10 @@ function checkWin() {
       game.boardState[item[1]] === game.boardState[item[2]]
     );
   });
+  const hasEmpty = game.boardState.includes(null);
 
   if (hasWin) {
     game.ended = true;
-
     game.els.statusBoardLabel.innerHTML =
       game.boardState[hasWin[0]] === "✖"
         ? game.labels.xWins
@@ -176,8 +176,17 @@ function checkWin() {
     for (const child of game.els.board.children) {
       child.disabled = false;
     }
+
+    return true;
+  } else if (!hasEmpty) {
+    game.ended = true;
+    game.els.statusBoardLabel.innerHTML = game.labels.draw;
+
+    for (const child of game.els.board.children) {
+      child.disabled = false;
+    }
+    return true;
   }
-  return hasWin;
 }
 
 window.addEventListener("DOMContentLoaded", init);
