@@ -37,7 +37,6 @@ const game = {
   started: false,
   ended: false,
 };
-let test1;
 
 function init() {
   game.els.board = document.querySelector(".gameboard");
@@ -100,9 +99,9 @@ function handleClick(e) {
     return;
   }
 
-  if (!game.started && game.computer.shape === "✖") {
+  if (!game.started && !game.playerTurn) {
     game.started = true;
-    computerMove();
+    getComputerMove();
     game.playerTurn = true;
     game.els.statusBoardLabel.innerHTML = `${game.player.shape}'s Turn`;
     return;
@@ -120,8 +119,9 @@ function handleClick(e) {
 
     game.playerTurn = false;
     game.els.statusBoardLabel.innerHTML = `${game.computer.shape}'s Turn`;
+
     setTimeout(() => {
-      computerMove();
+      getComputerMove();
 
       if (checkWin()) {
         return;
@@ -133,7 +133,42 @@ function handleClick(e) {
   }
 }
 
-function computerMove() {
+function getComputerMove() {
+  let winCells = [];
+  let blockCells = [];
+  for (const state of game.winState) {
+    const boardState = state.map((item) => game.boardState[item]);
+    const playerN = boardState.filter(
+      (item) => item === game.player.shape,
+    ).length;
+    const computerN = boardState.filter(
+      (item) => item === game.computer.shape,
+    ).length;
+    const emptyN = boardState.filter((item) => item === null).length;
+
+    if (playerN === 2 && emptyN === 1) {
+      blockCells.push(state[boardState.indexOf(null)]);
+    }
+
+    if (computerN === 2 && emptyN === 1) {
+      winCells.push(state[boardState.indexOf(null)]);
+    }
+  }
+
+  winCells = [...new Set(winCells)];
+  if (winCells.length > 0) {
+    const randomWinId = Math.floor(Math.random() * winCells.length);
+    playComputerMove(winCells[randomWinId]);
+    return;
+  }
+
+  blockCells = [...new Set(blockCells)];
+  if (blockCells.length > 0) {
+    const randomBlockId = Math.floor(Math.random() * blockCells.length);
+    playComputerMove(blockCells[randomBlockId]);
+    return;
+  }
+
   const emptyCells = [];
   for (let i = 0; i < game.boardState.length; i++) {
     if (game.boardState[i] === null) {
@@ -141,11 +176,14 @@ function computerMove() {
     }
   }
 
-  const randomId = Math.floor(Math.random() * emptyCells.length);
-  game.boardState[emptyCells[randomId]] = game.computer.shape;
-  game.els.board.children[emptyCells[randomId]].textContent =
-    game.computer.shape;
-  game.els.board.children[emptyCells[randomId]].disabled = true;
+  const randomEmptyId = Math.floor(Math.random() * emptyCells.length);
+  playComputerMove(emptyCells[randomEmptyId]);
+}
+
+function playComputerMove(cellId) {
+  game.boardState[cellId] = game.computer.shape;
+  game.els.board.children[cellId].textContent = game.computer.shape;
+  game.els.board.children[cellId].disabled = true;
 }
 
 function checkWin() {
@@ -178,13 +216,16 @@ function checkWin() {
     }
 
     return true;
-  } else if (!hasEmpty) {
+  }
+
+  if (!hasEmpty) {
     game.ended = true;
     game.els.statusBoardLabel.innerHTML = game.labels.draw;
 
     for (const child of game.els.board.children) {
       child.disabled = false;
     }
+
     return true;
   }
 }
